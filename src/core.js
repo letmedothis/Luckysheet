@@ -34,7 +34,6 @@ import Mandarin from "flatpickr/dist/l10n/zh.js";
 import { initListener } from "./controllers/listener";
 import { hideloading, showloading } from "./global/loading.js";
 import { luckysheetextendData } from "./global/extend.js";
-import { initChat } from './demoData/chat.js'
 
 let luckysheet = {};
 
@@ -181,8 +180,6 @@ luckysheet.create = function (setting) {
             }
         });
     }
-
-    initChat()
 };
 
 function initialWorkBook() {

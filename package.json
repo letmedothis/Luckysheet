@@ -63,5 +63,9 @@
     "commitizen": {
       "path": "./node_modules/cz-conventional-changelog"
     }
+  },
+  "allowScripts": {
+    "esbuild@0.14.7": true,
+    "esbuild@0.11.23": true
   }
 }

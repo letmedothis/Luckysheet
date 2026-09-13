@@ -1,11 +1,7 @@
 import { chart } from '../expendPlugins/chart/plugin'
-import { print } from '../expendPlugins/print/plugin'
-import { exportXlsx } from '../expendPlugins/exportXlsx/plugin'
 
 const pluginsObj = {
-    'chart':chart,
-    'print':print,
-    'exportXlsx':exportXlsx
+    'chart':chart
 }
 
 const isDemo = true
@@ -14,9 +10,7 @@ const isDemo = true
  * Register plugins
  * 
  * plugins:[
- * {name:'chart'},
- * {name:'print'},
- * {name:'exportXlsx',config:{url:''}}
+ * {name:'chart'}
  * ]
  */
 function initPlugins(plugins , options){

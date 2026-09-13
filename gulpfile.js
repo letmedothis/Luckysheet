@@ -72,7 +72,7 @@ const paths = {
     staticFonts: ['src/fonts/**'],
     staticAssets: ['src/assets/**'],
     staticImages: ['src/plugins/images/*.png'],
-    staticExpendPlugins: ['src/expendPlugins/**', '!src/expendPlugins/**/plugin.js'],
+    staticExpendPlugins: ['src/expendPlugins/**', '!src/expendPlugins/**/plugin.js', '!src/expendPlugins/print/**'],
     staticDemoData: ['src/demoData/*.js'],
     staticCssImages: ['src/css/**','!src/css/*.css'],
 
@@ -225,7 +225,7 @@ async function core() {
         minify: production,
         banner: { js: banner },
         target: ['es2015'],
-        sourcemap: true,
+        sourcemap: !production,
         outfile: 'dist/luckysheet.umd.js',
       })
 }
