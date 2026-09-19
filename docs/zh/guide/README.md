@@ -1,4 +1,4 @@
-# Luckysheet 已不再维护，推荐使用 [Univer](https://github.com/dream-num/univer) 替代
+# 本仓库为自维护的 Luckysheet 定制版本；下文为上游功能参考文档，本项目自身的改动记录见 [重构记录](../../refactor-record.md)。
 
 # 快速上手
 

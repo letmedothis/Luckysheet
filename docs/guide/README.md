@@ -1,4 +1,4 @@
-# Luckysheet is no longer maintained, please use [Univer](https://github.com/dream-num/univer) instead!
+# This is a self-maintained fork of Luckysheet. The page below is the upstream feature reference; for our changes see [refactor-record](../refactor-record.md).
 
 # Get started
 

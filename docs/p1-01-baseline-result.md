@@ -249,3 +249,12 @@ P1-05 必须显式传递本 baseline 的安全配置，不能依赖 demo options
 ## 16. 本任务没有实施的内容
 
 没有新增 Spreadsheet facade、Ledger Domain、Product Shell、产品 toolbar、后端、数据库或 UI framework；没有修改 Store、controller、Luckysheet Engine、构建配置、package 或现有生产源码；没有处理品牌、公式缺陷、history 缺陷或 destroy 残留。
+
+## 17. 重构阶段复验补充（Phase 2/3 之后）
+
+基线在 Store 拆分、canvas 收口、Vite 通道、locale 减重与右键菜单 seam 落地后重跑，仍为 7 PASS / 3 KNOWN FAILURE / 1 NOT COVERED，与本文记录一致。其中 destroy 场景有一项实质变化：
+
+- **10 秒残留 timeout 已修复。** 根因即 §12 记录的 `setSheetActive()` 末尾无条件空调用 `server.multipleRangeShow()`（`src/global/api.js:5224`，协同编辑调试残留）。该调用已删除；复验后 destroy 后 `activeTimeouts=0`、`activeIntervals=0`、容器外 body 节点为 0。
+- **listener 残留维持 KNOWN FAILURE，不修复。** 残留为 `window.resize`（`src/controllers/handler.js:271`）与 document/body 上 `click/mouseout/mouseover/blur/wheel/keydown/change` 各 1 个无 namespace 的 handler。上游绑定分散在 tooltip、对话框初始化等多个生命周期不同的模块，统一加 namespace 或 destroy 时全量 `off()` 会波及宿主页面/插件的 handler，风险大于收益；维持 §12 结论，归入 P1-05 的 listener/timer 所有权设计处理。
+- 跨 Sheet 公式首次激活 `#NAME?` 与 undo 不回退跨 Sheet 派生公式：本轮复核未复现出可安全最小修复的路径（前者偶发、依赖强制重算时序；后者是 history 只记录源 cell 的结构性缺口），继续按 KNOWN FAILURE 挂账，分别归 P1-06/P1-08 与 P1-10 范围。
+
