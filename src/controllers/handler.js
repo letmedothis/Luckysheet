@@ -67,6 +67,8 @@ import { getBorderInfoCompute } from "../global/border";
 import { luckysheetDrawMain } from "../global/draw";
 import locale from "../locale/locale";
 import Store from "../store";
+import { getGridContext2d } from "../render/canvasRegistry";
+import { showCustomCellMenuItems } from "./contextMenuExt";
 import { createLuckyChart, hideAllNeedRangeShow } from "../expendPlugins/chart/plugin";
 import luckysheetformula from "../global/formula";
 
@@ -333,9 +335,7 @@ export default function luckysheetHandler() {
             }
 
             let sheetFile = sheetmanage.getSheetByIndex();
-            let luckysheetTableContent = $("#luckysheetTableContent")
-                .get(0)
-                .getContext("2d");
+            let luckysheetTableContent = getGridContext2d();
 
             let row_location = rowLocation(y),
                 row = row_location[1],
@@ -1552,6 +1552,7 @@ export default function luckysheetHandler() {
                 }
 
                 showrightclickmenu($("#luckysheet-rightclick-menu"), x, y);
+                showCustomCellMenuItems();
             }
 
             // 备注：在mousedown中发送光标信息会漏处理部分(选区)范围
@@ -1772,9 +1773,7 @@ export default function luckysheetHandler() {
 
             let sheetFile = sheetmanage.getSheetByIndex();
 
-            let luckysheetTableContent = $("#luckysheetTableContent")
-                .get(0)
-                .getContext("2d");
+            let luckysheetTableContent = getGridContext2d();
             method.createHookFunction(
                 "cellDragStop",
                 Store.flowdata[row_index][col_index],
@@ -1848,9 +1847,7 @@ export default function luckysheetHandler() {
                 rangeMove: !!formula.rangeMove,
             };
 
-            let luckysheetTableContent = $("#luckysheetTableContent")
-                .get(0)
-                .getContext("2d");
+            let luckysheetTableContent = getGridContext2d();
 
             if (Store.flowdata && Store.flowdata[row_index]) {
                 method.createHookFunction(
@@ -3838,9 +3835,7 @@ export default function luckysheetHandler() {
                 rangeMove: !!formula.rangeMove,
             };
 
-            let luckysheetTableContent = $("#luckysheetTableContent")
-                .get(0)
-                .getContext("2d");
+            let luckysheetTableContent = getGridContext2d();
 
             method.createHookFunction(
                 "sheetMouseup",

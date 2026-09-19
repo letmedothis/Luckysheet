@@ -1,7 +1,7 @@
 import defaultSetting from "./config.js";
 import { common_extend } from "./utils/util";
 import Store from "./store";
-import { locales } from "./locale/locale";
+import { locales, registerLocale } from "./locale/locale";
 import server from "./controllers/server";
 import luckysheetConfigsetting from "./controllers/luckysheetConfigsetting";
 import sheetmanage from "./controllers/sheetmanage";
@@ -247,6 +247,7 @@ luckysheet.hideLoadingProgress = hideloading;
 luckysheet.luckysheetextendData = luckysheetextendData;
 
 luckysheet.locales = locales;
+luckysheet.registerLocale = registerLocale;
 
 // 获取条件格式渲染的单元格数量
 luckysheet.getConditionFormatCells = getConditionFormatCells;

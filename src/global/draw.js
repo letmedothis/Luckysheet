@@ -17,6 +17,8 @@ import { getObjType, chatatABC, luckysheetfontformat } from "../utils/util";
 import { isInlineStringCell } from "../controllers/inlineString";
 import method from "./method";
 import Store from "../store";
+import { getGridContext2d, getContext2d } from "../render/canvasRegistry";
+import { tryPaintCell } from "../render/cellPainters";
 import locale from "../locale/locale";
 import sheetmanage from "../controllers/sheetmanage";
 
@@ -33,9 +35,7 @@ function luckysheetDrawgridRowTitle(scrollHeight, drawHeight, offsetTop) {
         offsetTop = Store.columnHeaderHeight;
     }
 
-    let luckysheetTableContent = $("#luckysheetTableContent")
-        .get(0)
-        .getContext("2d");
+    let luckysheetTableContent = getGridContext2d();
     luckysheetTableContent.save();
     luckysheetTableContent.scale(Store.devicePixelRatio, Store.devicePixelRatio);
 
@@ -217,9 +217,7 @@ function luckysheetDrawgridColumnTitle(scrollWidth, drawWidth, offsetLeft) {
         offsetLeft = Store.rowHeaderWidth;
     }
 
-    let luckysheetTableContent = $("#luckysheetTableContent")
-        .get(0)
-        .getContext("2d");
+    let luckysheetTableContent = getGridContext2d();
     luckysheetTableContent.save();
     luckysheetTableContent.scale(Store.devicePixelRatio, Store.devicePixelRatio);
     luckysheetTableContent.clearRect(offsetLeft, 0, drawWidth, Store.columnHeaderHeight - 1);
@@ -433,9 +431,7 @@ function luckysheetDrawMain(
     //表格canvas
     let luckysheetTableContent = null;
     if (mycanvas == null) {
-        luckysheetTableContent = $("#luckysheetTableContent")
-            .get(0)
-            .getContext("2d");
+        luckysheetTableContent = getGridContext2d();
     } else {
         if (getObjType(mycanvas) == "object") {
             try {
@@ -444,9 +440,7 @@ function luckysheetDrawMain(
                 luckysheetTableContent = mycanvas;
             }
         } else {
-            luckysheetTableContent = $("#" + mycanvas)
-                .get(0)
-                .getContext("2d");
+            luckysheetTableContent = getContext2d(mycanvas);
         }
     }
 
@@ -1535,7 +1529,23 @@ let cellRender = function(
     let cellOverflow_bd_r_render = true; //溢出单元格右边框是否需要绘制
     let cellOverflow_colInObj = cellOverflow_colIn(cellOverflowMap, r, c, dataset_col_st, dataset_col_ed);
 
-    if (cell.tb == "1" && cellOverflow_colInObj.colIn) {
+    //自定义单元格渲染器：命中注册的 ct.t 类型时接管内容层绘制（背景/角标/边框仍走默认管线）
+    let customPainterPainted = tryPaintCell(
+        cell,
+        luckysheetTableContent,
+        {
+            x: start_c + offsetLeft,
+            y: start_r + offsetTop + 1,
+            width: end_c - start_c,
+            height: end_r - start_r,
+        },
+        r,
+        c,
+    );
+
+    if (customPainterPainted) {
+        //内容层已由 painter 绘制完成
+    } else if (cell.tb == "1" && cellOverflow_colInObj.colIn) {
         //此单元格 为 溢出单元格渲染范围最后一列，绘制溢出单元格内容
         if (cellOverflow_colInObj.colLast) {
             cellOverflowRender(

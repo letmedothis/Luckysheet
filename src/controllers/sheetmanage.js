@@ -925,9 +925,7 @@ const sheetmanage = {
                 .css({
                     width: Store.luckysheetTableContentHW[0],
                     height: Store.luckysheetTableContentHW[1],
-                })
-                .get(0)
-                .getContext("2d");
+                });
             let locale_info = locale().info;
             let key = server.gridKey;
             let cahce_key = key + "__qkcache";

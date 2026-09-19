@@ -19,6 +19,7 @@ import { selectHightlightShow, selectionCopyShow, collaborativeEditBox } from '.
 import { createFilterOptions } from '../controllers/filter';
 import { getSheetIndex } from '../methods/get';
 import Store from '../store';
+import { getGridContext2d } from '../render/canvasRegistry';
 
 let refreshCanvasTimeOut = null;
 
@@ -1322,7 +1323,7 @@ function luckysheetrefreshgrid(scrollWidth, scrollHeight) {
         if($("#luckysheetTableContent").length == 0){
             return;
         }
-        let luckysheetTableContent = $("#luckysheetTableContent").get(0).getContext("2d");
+        let luckysheetTableContent = getGridContext2d();
         luckysheetDrawMain(scrollWidth, scrollHeight);
     
         // luckysheetTableContent.clearRect(0, 0, 46, 20);

@@ -5221,7 +5221,7 @@ export function setSheetActive(order, options = {}) {
             success();
         }
     }, 1);
-    server.multipleRangeShow()
+
     return file;
 }
 
@@ -6949,3 +6949,12 @@ export function openSearchDialog(source = 1){
     luckysheetSearchReplace.init();
     $("#luckysheet-search-replace #searchInput input").focus();
 }
+
+// 自定义单元格渲染器注册（内容层接管，背景/角标/边框仍走默认管线）
+export { registerCellPainter, unregisterCellPainter } from "../render/cellPainters";
+
+// 单元格右键菜单自定义项
+export {
+    registerCellContextMenuItem,
+    unregisterCellContextMenuItem,
+} from "../controllers/contextMenuExt";

@@ -1,0 +1,15 @@
+{
+  "compilerOptions": {
+    "target": "ES2015",
+    "module": "ESNext",
+    "moduleResolution": "bundler",
+    "lib": ["ES2015", "DOM"],
+    "strict": true,
+    "noEmit": true,
+    "skipLibCheck": true,
+    "forceConsistentCasingInFileNames": true,
+    "allowJs": false,
+    "types": []
+  },
+  "include": ["src/store/**/*.ts", "src/render/**/*.ts"]
+}

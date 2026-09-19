@@ -459,6 +459,9 @@ function luckysheetfontformat(format) {
 
 //右键菜单
 function showrightclickmenu($menu, x, y) {
+    // 自定义单元格菜单分组默认隐藏，仅单元格区域右键分支显式显示
+    $menu.children("#luckysheet-custom-cell-menu-group").css("display", "none");
+
     let winH = $(window).height(),
         winW = $(window).width();
     let menuW = $menu.width(),

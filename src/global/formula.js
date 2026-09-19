@@ -36,6 +36,7 @@ import {
     luckysheet_getSpecialReference,
 } from "../function/func";
 import Store from "../store";
+import { getGridContext2d } from "../render/canvasRegistry";
 import locale from "../locale/locale";
 import json from "./json";
 import method from "./method";
@@ -1639,9 +1640,7 @@ const luckysheetformula = {
             //自动换行
             let defaultrowlen = Store.defaultrowlen;
 
-            let canvas = $("#luckysheetTableContent")
-                .get(0)
-                .getContext("2d");
+            let canvas = getGridContext2d();
             // offlinecanvas.textBaseline = 'top'; //textBaseline以top计算
 
             // let fontset = luckysheetfontformat(d[r][c]);

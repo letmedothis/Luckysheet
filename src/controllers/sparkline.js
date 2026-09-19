@@ -1,4 +1,5 @@
 import Store from "../store";
+import { getContext2d } from "../render/canvasRegistry";
 
 //sparkline设置
 let createClass = function (/* [baseclass, [mixin, ...]], definition */) {
@@ -1920,7 +1921,7 @@ const luckysheetSparkline = {
             context = this.ctx;
         }
         else{
-            context = $("#" + this._canvasID ).get(0).getContext('2d');
+            context = getContext2d(this._canvasID);
         }
 
         if (lineColor !== undefined) {

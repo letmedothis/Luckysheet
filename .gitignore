@@ -3,6 +3,8 @@ node_modules
 package-lock.json
 yarn.lock
 dist
+dist-vite
+dist-vite-slim
 docs/.vuepress/dist
 src/expendPlugins/print/print.js
 
@@ -10,3 +12,4 @@ src/expendPlugins/print/print.js
 .history
 .vs
 .vscode
+.qoder

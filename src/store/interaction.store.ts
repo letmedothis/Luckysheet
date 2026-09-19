@@ -1,0 +1,103 @@
+// 交互瞬态: 选区、拖拽/复制粘贴/筛选等操作状态、定时器、撤销重做、图表交互
+// 迁移自 store/index.js，字段名与初始值保持不变
+const interactionStore = {
+  loadingObj: {},
+
+  jfcountfuncTimeout: null,
+  jfautoscrollTimeout: null,
+
+  luckysheet_select_status: false,
+  luckysheet_select_save: [{ row: [0, 0], column: [0, 0] }],
+  luckysheet_selection_range: [],
+
+  luckysheet_copy_save: {}, //复制粘贴
+  luckysheet_paste_iscut: false,
+
+  filterchage: true, //筛选
+  luckysheet_filter_save: { row: [], column: [] },
+
+  luckysheet_sheet_move_status: false,
+  luckysheet_sheet_move_data: [],
+  luckysheet_scroll_status: false,
+
+  luckysheetisrefreshdetail: true,
+  luckysheetisrefreshtheme: true,
+  luckysheetcurrentisPivotTable: false,
+
+  luckysheet_rows_selected_status: false, //行列标题相关参
+  luckysheet_cols_selected_status: false,
+  luckysheet_rows_change_size: false,
+  luckysheet_rows_change_size_start: [],
+  luckysheet_cols_change_size: false,
+  luckysheet_cols_change_size_start: [],
+  luckysheet_cols_dbclick_timeout: null,
+  luckysheet_cols_dbclick_times: 0,
+
+  luckysheetCellUpdate: [],
+
+  luckysheet_shiftpositon: null,
+
+  iscopyself: true,
+
+  orderbyindex: 0, //排序下标
+
+  luckysheet_model_move_state: false, //模态框拖动
+  luckysheet_model_xy: [0, 0],
+  luckysheet_model_move_obj: null,
+
+  luckysheet_cell_selected_move: false, //选区拖动替换
+  luckysheet_cell_selected_move_index: [],
+
+  luckysheet_cell_selected_extend: false, //选区下拉
+  luckysheet_cell_selected_extend_index: [],
+  luckysheet_cell_selected_extend_time: null,
+
+  clearjfundo: true,
+  jfundo: [],
+  jfredo: [],
+
+  zIndex: 15,
+  createChart: "",
+  highlightChart: "",
+  chartparam: {
+    luckysheetCurrentChart: null, //current chart_id
+    luckysheetCurrentChartActive: false,
+    luckysheetCurrentChartMove: null, // Debounce state
+    luckysheetCurrentChartMoveTimeout: null, //拖动图表框的节流定时器
+    luckysheetCurrentChartMoveObj: null, //chart DOM object
+    luckysheetCurrentChartMoveXy: null, //上一次操作结束的表格信息，x,y: chart框位置，scrollLeft1,scrollTop1: 滚动条位置
+    luckysheetCurrentChartMoveWinH: null, //左右滚动条滑动距离
+    luckysheetCurrentChartMoveWinW: null, //上下滚动条滑动距离
+    luckysheetCurrentChartResize: null,
+    luckysheetCurrentChartResizeObj: null,
+    luckysheetCurrentChartResizeXy: null,
+    luckysheetCurrentChartResizeWinH: null,
+    luckysheetCurrentChartResizeWinW: null,
+    luckysheetInsertChartTosheetChange: true, // 正在执行撤销
+    luckysheetCurrentChartZIndexRank: 100,
+    luckysheet_chart_redo_click: false, //撤销重做时标识
+    luckysheetCurrentChartMaxState: false, //图表全屏状态
+    jfrefreshchartall: "",
+    changeChartCellData: "",
+    renderChart: "",
+    getChartJson: "",
+  },
+  chart_selection: {},
+  currentChart: "",
+  scrollRefreshSwitch: true,
+
+  toobarObject: {}, //toolbar constant
+  inlineStringEditCache: null,
+  inlineStringEditRange: null,
+
+  // cooperative editing
+  cooperativeEdit: {
+    usernameTimeout: {},
+    changeCollaborationSize: [], //改变行高或者列宽时，协同提示框需要跟随改变所需数据
+    allDataColumnlen: [], //列宽发生过改变的列
+    merge_range: {}, //合并时单元格信息
+    checkoutData: [], //切换表格页时所需数据
+  },
+};
+
+export default interactionStore;

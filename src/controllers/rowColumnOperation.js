@@ -26,6 +26,7 @@ import {
     checkProtectionAuthorityNormal,
 } from "./protection";
 import Store from "../store";
+import { getGridContext2d } from "../render/canvasRegistry";
 import luckysheetConfigsetting from "./luckysheetConfigsetting";
 
 export function rowColumnOperationInitial() {
@@ -2463,9 +2464,7 @@ function luckysheetcolsdbclick() {
 
     let colIndex = colLocation(x)[2];
     let d = editor.deepCopyFlowData(Store.flowdata);
-    let canvas = $("#luckysheetTableContent")
-        .get(0)
-        .getContext("2d");
+    let canvas = getGridContext2d();
 
     let cfg = $.extend(true, {}, Store.config);
     if (cfg["columnlen"] == null) {
