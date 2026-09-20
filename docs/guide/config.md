@@ -76,11 +76,21 @@ The following are all supported setting parameters
 - Pager [pager](#pager)
 
 ### container
-- Type: String
+- Type: String | HTMLElement
 - Default: "luckysheet"
-- Usage: Container ID
-  
-------------
+- Usage: Container ID or element
+   
+In multi-instance mode, each instance must have a unique container (unique DOM ID or distinct HTMLElement). The container value is used as the DOM ID namespace prefix: `#luckysheet-<container>-cell-main`.
+
+Example:
+```js
+// Using DOM ID string — must be unique on the page
+luckysheet.createWithRuntime({ container: 'sheet-a', ... }, rtA);
+luckysheet.createWithRuntime({ container: 'sheet-b', ... }, rtB);
+
+// Using HTMLElement — recommended when you already have a ref
+luckysheet.createWithRuntime({ container: el, ... }, rt);
+```
 ### title
 - Type: String
 - Default: "Luckysheet Demo"
@@ -583,6 +593,67 @@ Note that you also need to configure `loadUrl` and `loadSheetUrl` to take effect
 	```
 
 ------------
+
+## Multi-instance isolation
+
+Luckysheet now supports running multiple spreadsheets on the same page without DOM ID or Store collisions.
+
+### Legacy single-instance mode
+
+```js
+luckysheet.create({ container: 'luckysheet', data: [...] });
+```
+
+Still supported. Internally it creates a default Store and patches global jQuery once.
+
+### Per-instance mode
+
+```js
+// 1. Create a runtime bound to a container element
+const rt = luckysheet.SpreadsheetRuntime.create({
+  container: document.getElementById('sheet-a'),
+});
+
+// 2. Create the spreadsheet with that runtime
+luckysheet.createWithRuntime(
+  { container: 'sheet-a', data: [...] },
+  rt
+);
+
+// 3. Repeat for additional instances — each gets its own Store and DOM ID namespace
+const rtB = luckysheet.SpreadsheetRuntime.create({ container: 'sheet-b' });
+luckysheet.createWithRuntime({ container: 'sheet-b', data: [...] }, rtB);
+```
+
+### Destroy an instance
+
+```js
+rt.destroy();
+```
+
+This removes the instance DOM, unbinds namespaced events, and clears the per-instance Store.
+
+### How it works
+
+| Layer | Mechanism |
+| --- | --- |
+| Store | `useInstanceStore(instanceStore)` switches the global `_activeStore` proxy; all modules read from the same active store |
+| DOM IDs | `#luckysheet-<container>-<base>` — e.g. `#luckysheet-sheet-a-cell-main` |
+| jQuery selectors | Build-time Vite plugin rewrites `$("#luckysheet-...")` → `ls$(...)`; runtime `patchGlobalJQuery()` handles remaining selectors |
+| Events | `getEventNamespace()` returns `luckysheetEvent-<container>` for `.off()` / `.on()` |
+
+### Container option
+
+- Type: `String | HTMLElement`
+- Default: `"luckysheet"`
+- Usage: The container ID or element. In multi-instance mode, this value is used as the DOM ID namespace prefix. Must be unique per instance.
+
+```js
+luckysheet.createWithRuntime({
+  container: document.getElementById('my-sheet'), // unique per instance
+  data: [...]
+}, runtime);
+```
 
 ## Hook Function (TODO)
 

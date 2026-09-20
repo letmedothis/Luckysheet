@@ -10,6 +10,14 @@
 
 注意一点，对象中的i为当前sheet的index值，而不是order。
 
+## 多实例操作
+
+同一页面运行多个 Luckysheet 时，每个实例维护独立的操作历史和 Store。后台同步格式不变，仅每个实例使用独立的 `container` 作用域的事件命名空间和 DOM ID。
+
+- 每个实例的 `Store` 通过 `useInstanceStore()` 隔离。
+- DOM ID 带容器前缀：`#luckysheet-<container>-cell-main`。
+- 事件带命名空间：`.luckysheetEvent-<container>`。
+
 ## 单元格刷新
 
 ### 单个单元格刷新

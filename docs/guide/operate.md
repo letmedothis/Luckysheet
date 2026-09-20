@@ -1,14 +1,23 @@
 # Table Operation
 `luckysheet` stores all operations in the history to `undo` and `redo`. If `allowupdate` is set to true and `updateURL` is available in initial, operations will be updated on the backend in real-time via webSocket. And every one can edit same sheet on the same time.
 
->Source code [`src/controllers/server.js`] (https://github.com/mengshukeji/Luckysheet/blob/master/src/controllers/server.js) The module shows us the function of background saving.
+ >Source code [`src/controllers/server.js`] (https://github.com/mengshukeji/Luckysheet/blob/master/src/controllers/server.js) The module shows us the function of background saving.
 
-In general, shared editing(or collaborative editing) is controled by the account system created by developers to control permissions.
+ In general, shared editing(or collaborative editing) is controled by the account system created by developers to control permissions.
 
-The following are all types of operations that support transferring to the background. In this case, I use mongodb as a storage example to explain how front-end and back-end interacts with eachother.
+ The following are all types of operations that support transferring to the background. In this case, I use mongodb as a storage example to explain how front-end and back-end interacts with eachother.
 
-Pay attention, `i` in the object is the `index` of the sheet rather than `order`.
-## Cell refresh
+ Pay attention, `i` in the object is the `index` of the sheet rather than `order`.
+
+ ## Multi-instance operations
+
+ When running multiple spreadsheets on the same page, each instance maintains its own operation history and Store. The backend sync format remains unchanged; the only difference is that each instance uses its own `container`-scoped event namespace and DOM IDs.
+
+ - Each instance's `Store` is isolated via `useInstanceStore()`.
+ - DOM IDs are prefixed with the container: `#luckysheet-<container>-cell-main`.
+ - Events are namespaced: `.luckysheetEvent-<container>`.
+
+ ## Cell refresh
 ### single cell refresh
 - **Format**：
 

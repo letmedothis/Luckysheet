@@ -34,6 +34,7 @@ import Mandarin from "flatpickr/dist/l10n/zh.js";
 import { initListener } from "./controllers/listener";
 import { hideloading, showloading } from "./global/loading.js";
 import { luckysheetextendData } from "./global/extend.js";
+import { patchGlobalJQuery } from "./sdk/jquery-instance";
 
 let luckysheet = {};
 
@@ -43,14 +44,23 @@ let luckysheet = {};
 
 luckysheet = common_extend(api, luckysheet);
 
-//创建luckysheet表格
-luckysheet.create = function (setting) {
-    method.destroy();
+// Per-instance create entry. Falls back to legacy single-instance behavior
+// when no runtime is provided.
+luckysheet.createWithRuntime = function (setting, runtime) {
+    const instanceStore = runtime ? runtime.store : Store;
+
+    // Switch global Store to this instance so all modules see the same data
+    useInstanceStore(instanceStore);
+
+    // Patch global jQuery so all remaining $() calls with #luckysheet- IDs
+    // are automatically scoped to this instance.
+    patchGlobalJQuery();
+
     // Store original parameters for api: toJson
-    Store.toJsonOptions = {};
+    instanceStore.toJsonOptions = {};
     for (let c in setting) {
         if (c !== "data") {
-            Store.toJsonOptions[c] = setting[c];
+            instanceStore.toJsonOptions[c] = setting[c];
         }
     }
 
@@ -61,17 +71,17 @@ luckysheet.create = function (setting) {
         title = extendsetting.title;
 
     let container = extendsetting.container;
-    Store.container = container;
-    Store.luckysheetfile = extendsetting.data;
-    Store.defaultcolumnNum = extendsetting.column;
-    Store.defaultrowNum = extendsetting.row;
-    Store.defaultFontSize = extendsetting.defaultFontSize;
-    Store.fullscreenmode = extendsetting.fullscreenmode;
-    Store.lang = extendsetting.lang; //language
-    Store.allowEdit = extendsetting.allowEdit;
-    Store.limitSheetNameLength = extendsetting.limitSheetNameLength;
-    Store.defaultSheetNameMaxLength = extendsetting.defaultSheetNameMaxLength;
-    Store.fontList = extendsetting.fontList;
+    instanceStore.container = container;
+    instanceStore.luckysheetfile = extendsetting.data;
+    instanceStore.defaultcolumnNum = extendsetting.column;
+    instanceStore.defaultrowNum = extendsetting.row;
+    instanceStore.defaultFontSize = extendsetting.defaultFontSize;
+    instanceStore.fullscreenmode = extendsetting.fullscreenmode;
+    instanceStore.lang = extendsetting.lang; //language
+    instanceStore.allowEdit = extendsetting.allowEdit;
+    instanceStore.limitSheetNameLength = extendsetting.limitSheetNameLength;
+    instanceStore.defaultSheetNameMaxLength = extendsetting.defaultSheetNameMaxLength;
+    instanceStore.fontList = extendsetting.fontList;
     server.gridKey = extendsetting.gridKey;
     server.loadUrl = extendsetting.loadUrl;
     server.updateUrl = extendsetting.updateUrl;
@@ -180,6 +190,11 @@ luckysheet.create = function (setting) {
             }
         });
     }
+};
+
+//创建luckysheet表格（legacy，保持向后兼容）
+luckysheet.create = function (setting) {
+    return luckysheet.createWithRuntime(setting, null);
 };
 
 function initialWorkBook() {

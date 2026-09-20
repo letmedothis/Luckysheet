@@ -1,13 +1,6 @@
 import { mkdirSync, writeFileSync } from "node:fs";
-import { resolve } from "node:path";
+import { resolve, relative } from "node:path";
 import { defineConfig } from "vite";
-
-// 现代构建通道（阶段 3）：与 gulp/esbuild 通道并存
-// CSS、静态资源仍由 gulp 的 css/plugins/copyStatic* 任务负责
-//
-// 语言裁剪：LUCKYSHEET_LANGS=en,zh npm run build:vite
-//   仅打包指定语言，未引用的语言包被 tree-shake；产物输出到 dist-vite-slim/
-//   运行时可用 luckysheet.registerLocale('es', dict) 补充其他语言
 
 const langs = (process.env.LUCKYSHEET_LANGS || "")
     .split(",")
@@ -54,11 +47,95 @@ function slimLocalePlugin() {
     };
 }
 
+function luckysheetInstanceSelectorPlugin() {
+    const LS_IMPORT_RE = /import\s+\{.*?\bls\$[^}]*\}\s+from\s+['"]([^'"]*ls-jquery[^'"]*)['"];?/;
+
+    function resolveLsJqueryPath(fileId) {
+        const fileDir = fileId.includes("/") ? fileId.slice(0, fileId.lastIndexOf("/")) : ".";
+        return relative(fileDir, "src/sdk/ls-jquery.ts")
+            .replace(/\\/g, "/")
+            .replace(/^\.\//, "");
+    }
+
+    function isExemptSelector(selector) {
+        const trimmed = selector.trim();
+        return (
+            trimmed === "document" ||
+            trimmed === "window" ||
+            trimmed === "this" ||
+            trimmed.startsWith("<!") ||
+            /^<[a-zA-Z]/.test(trimmed)
+        );
+    }
+
+    return {
+        name: "luckysheet-instance-selector",
+        enforce: "pre",
+        transform(code, id) {
+            if (!id.includes("/src/") || !/\.(js|ts)$/.test(id)) {
+                return null;
+            }
+            if (id.replace(/\\/g, "/").endsWith("src/sdk/ls-jquery.ts")) {
+                return null;
+            }
+
+            let transformed = code;
+
+            if (!/#luckysheet-[\w-]+/.test(transformed)) {
+                return null;
+            }
+
+            // 1) Inject the ls$ import once
+            if (!LS_IMPORT_RE.test(transformed)) {
+                const relPath = resolveLsJqueryPath(id);
+                const importLine = `import { ls$ } from '${relPath}';`;
+                const lastImportMatch = transformed.match(/^(\s*import\s+.*?;\s*)+/m);
+                if (lastImportMatch) {
+                    const insertAt = lastImportMatch.index + lastImportMatch[0].length;
+                    transformed =
+                        transformed.slice(0, insertAt) +
+                        importLine +
+                        "\n" +
+                        transformed.slice(insertAt);
+                } else {
+                    transformed = importLine + "\n" + transformed;
+                }
+            }
+
+            // 2) Replace $("selector"), $('selector') with ls$("selector"), ls$('selector')
+            //    where the selector string contains a #luckysheet- ID.
+            //    Also handles: $("prefix" + var + "#luckysheet-suffix")
+            //    Uses negative lookbehind to skip calls already starting with ls$.
+            transformed = transformed.replace(
+                /(?<!ls)\$\(\s*(['"])((?:(?!\1).)*#luckysheet-[\w-][^)]*)\1[^)]*\)/g,
+                (match, _quote, selector) => {
+                    if (isExemptSelector(selector)) return match;
+                    return match.replace(/^\$\(/, "ls$(");
+                }
+            );
+
+            // 3) Also handle backtick template literals: $(\`#luckysheet-xxx\`)
+            transformed = transformed.replace(
+                /(?<!ls)\$\(\s*(`)((?:(?!\1).)*#luckysheet-[\w-][^`]*)\1\s*\)/g,
+                (match, _quote, selector) => {
+                    if (isExemptSelector(selector)) return match;
+                    return match.replace(/^\$\(/, "ls$(");
+                }
+            );
+
+            return {
+                code: transformed,
+                map: null,
+            };
+        },
+    };
+}
+
 export default defineConfig({
-    plugins: [slimLocalePlugin()],
+    plugins: [slimLocalePlugin(), luckysheetInstanceSelectorPlugin()],
     build: {
-        outDir: langs.length > 0 ? "dist-vite-slim" : "dist-vite",
-        emptyOutDir: true,
+        outDir: "dist",
+        emptyOutDir: false,
         target: "es2015",
         lib: {
             entry: "src/index.esm.js",

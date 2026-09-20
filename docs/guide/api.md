@@ -2440,6 +2440,64 @@ Use note:
 	
 	Initialize a Luckysheet, which can contain multiple worksheets, refer to [Configuration List](/zh/guide/config.html)
 
+	This is the legacy single-instance entry. For multiple spreadsheets on one page, use `createWithRuntime` instead.
+
+------------
+
+### createWithRuntime(options, runtime)
+
+- **Parameter**：
+	
+	- {Object} [options]: All configuration information of the table
+	- {SpreadsheetRuntime} [runtime]: Runtime instance created by `SpreadsheetRuntime.create()`
+
+- **Explanation**：
+	
+	Initialize a Luckysheet instance with an explicit runtime. This enables multi-instance isolation: each runtime gets its own Store, DOM ID namespace, and event namespace.
+
+	If `runtime` is `null` or omitted, falls back to the legacy single-instance behavior (same as `create`).
+
+	```js
+	const rt = luckysheet.SpreadsheetRuntime.create({ container: document.getElementById('sheet-a') });
+	luckysheet.createWithRuntime({ container: 'sheet-a', data: [...] }, rt);
+	```
+
+------------
+
+### SpreadsheetRuntime.create(options)
+
+- **Parameter**：
+	
+	- {Object} [options]: Runtime options
+    	+ {String} [id]: Optional runtime ID; auto-generated if omitted
+    	+ {HTMLElement} [container]: Container element for this spreadsheet instance
+    	+ {AbortSignal} [signal]: Optional abort signal; destroying the signal destroys the runtime
+
+- **Returns**：{SpreadsheetRuntime}
+
+- **Explanation**：
+	
+	Create a runtime object that owns a per-instance Store. Pass it to `createWithRuntime` to enable multi-instance mode.
+
+	```js
+	const rt = luckysheet.SpreadsheetRuntime.create({ container: document.getElementById('sheet') });
+	luckysheet.createWithRuntime({ container: 'sheet', data: [...] }, rt);
+	```
+
+------------
+
+### runtime.destroy()
+
+- **Parameter**：none
+
+- **Explanation**：
+	
+	Destroy the runtime and its associated spreadsheet instance. This removes instance DOM, unbinds namespaced events, and clears the per-instance Store.
+
+	```js
+	rt.destroy();
+	```
+
 ------------
 
 ### refresh([setting])

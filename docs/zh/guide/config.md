@@ -82,11 +82,21 @@ Luckysheet开放了更细致的自定义配置选项，分别有
 - 自定义图片地址处理 [imageUrlHandle](#imageUrlHandle)
 
 ### container
-- 类型：String
+- 类型：String | HTMLElement
 - 默认值："luckysheet"
-- 作用：容器的ID
-  
-------------
+- 作用：容器的ID或DOM元素
+
+多实例模式下，每个实例的 container 必须唯一（唯一的 DOM ID 或不同的 HTMLElement）。container 值会作为 DOM ID 命名空间前缀：`#luckysheet-<container>-cell-main`。
+
+示例：
+```js
+// 使用 DOM ID 字符串 — 页面中必须唯一
+luckysheet.createWithRuntime({ container: 'sheet-a', ... }, rtA);
+luckysheet.createWithRuntime({ container: 'sheet-b', ... }, rtB);
+
+// 使用 HTMLElement — 推荐，直接传入容器元素引用
+luckysheet.createWithRuntime({ container: el, ... }, rt);
+```
 ### title
 - 类型：String
 - 默认值："Luckysheet Demo"

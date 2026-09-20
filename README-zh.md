@@ -16,7 +16,7 @@
 
 - 纯前端、类 Excel 的在线表格：Canvas 2D 手绘网格 + 内置公式引擎 + jQuery DOM 层；
 - 面向嵌入式集成（SDK 化）与台账类业务定制，而非通用 SaaS 表格；
-- 单实例运行模型是当前明确接受的事实，多实例隔离在路线图中排期处理。
+- 支持单实例与多实例隔离运行。
 
 ## 修改记录
 
@@ -28,6 +28,7 @@
 | 渲染层收口 | 14 处分散的 canvas getContext 收敛到 `src/render/canvasRegistry.ts`（连接自愈缓存） |
 | 自定义单元格渲染 | `registerCellPainter` seam：按 `ct.t` 接管内容层绘制，背景/角标/边框仍走默认管线 |
 | 自定义右键菜单 | `registerCellContextMenuItem` seam：单元格右键菜单注入扩展项 |
+| 多实例隔离 | per-instance Store、实例级 DOM ID、运行时 jQuery 补丁、`createWithRuntime` 双入口 — 同页多表格无 ID 冲突 |
 | TypeScript 试点 | `src/store`、`src/render` 严格模式类型化，`npm run typecheck` |
 | Vite 构建通道 | 与 gulp 并存的现代通道；UMD 更小、构建 ~0.7s；`build:vite` / `build:vite:slim` |
 | locale 减重 | 按 `LUCKYSHEET_LANGS` 裁剪语言包（−470KB）+ 运行时 `registerLocale` |
@@ -70,6 +71,26 @@ npm run typecheck        # store/render 严格类型检查
   luckysheet.create({ container: 'luckysheet' })
 </script>
 ```
+
+### 多实例模式
+
+legacy `luckysheet.create()` 仍支持单实例。如需同页多个表格，使用 `createWithRuntime`，每个实例拥有独立的 Store 和 DOM ID 命名空间：
+
+```js
+const rtA = luckysheet.SpreadsheetRuntime.create({ container: document.getElementById('sheet-a') });
+luckysheet.createWithRuntime({ container: 'sheet-a', data: [...] }, rtA);
+
+const rtB = luckysheet.SpreadsheetRuntime.create({ container: document.getElementById('sheet-b') });
+luckysheet.createWithRuntime({ container: 'sheet-b', data: [...] }, rtB);
+```
+
+销毁实例：
+
+```js
+rtA.destroy(); // 移除 DOM、解绑事件、清空实例 Store
+```
+
+> 实现原理：构建时 Vite 插件将 `$("#luckysheet-...")` 重写为 `ls$(...)`，运行时 `patchGlobalJQuery()` 处理剩余选择器；Store 切换通过 `useInstanceStore()` 完成（见 `src/store/index.ts`）。
 
 ### 定制扩展 API
 
